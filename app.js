@@ -1,4 +1,5 @@
 const express = require("express");
+const { fileRouter } = require("./fileUpload/fileUpload");
 
 const app = express();
 
@@ -8,7 +9,4 @@ app.listen(PORT, () => {
   console.log(`Server is running On Port ${PORT}`);
 });
 
-app.use("/user", (req, res) => {
-  console.log(req.query.page);
-  res.send("This is a User Route");
-});
+app.use("/", fileRouter);
