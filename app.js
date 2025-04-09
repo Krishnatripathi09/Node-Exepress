@@ -1,5 +1,5 @@
 const express = require("express");
-const { fileRouter } = require("./fileUpload/fileUpload");
+const { userAuth } = require("./middlewares/userAuth");
 
 const app = express();
 
@@ -9,4 +9,6 @@ app.listen(PORT, () => {
   console.log(`Server is running On Port ${PORT}`);
 });
 
-app.use("/", fileRouter);
+app.get("/user/data", userAuth, (req, res) => {
+  res.send("I am user data ");
+});
