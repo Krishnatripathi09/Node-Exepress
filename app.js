@@ -1,9 +1,14 @@
 const express = require("express");
-const { userAuth } = require("./middlewares/userAuth");
 const connectDB = require("./config/database.js");
+const { User } = require("./models/userSchema.js");
 const app = express();
-
 const PORT = 3000;
+
+app.post("/user", (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
+
+  
+});
 
 connectDB()
   .then(() => {
