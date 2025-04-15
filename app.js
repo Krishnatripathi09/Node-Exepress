@@ -1,17 +1,17 @@
 const express = require("express");
 const { userAuth } = require("./middlewares/userAuth");
-
+const connectDB = require("./config/database.js");
 const app = express();
 
 const PORT = 3000;
 
-app.get("/user", userAuth, (req, res) => {
-  res.send("I am user data ");
-});
-
-app.post("user/post", (req, res) => {
-  console.log("Post The Data Here");
-});
-app.listen(PORT, () => {
-  console.log(`Server is running On Port ${PORT}`);
-});
+connectDB()
+  .then(() => {
+    console.log("Connected to DataBase SuccessFully");
+    app.listen(PORT, () => {
+      console.log(`Server is running On Port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
