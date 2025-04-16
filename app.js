@@ -8,6 +8,9 @@ app.use(express.json());
 app.post("/user", async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
+
+
+  
   const user = await User({
     firstName,
     lastName,

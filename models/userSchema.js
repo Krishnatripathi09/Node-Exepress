@@ -1,26 +1,37 @@
 const mongoose = require("mongoose");
-
-const userSchema = mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-    minLength: 4,
-    maxLength: 20,
+const validator = require("validator");
+const userSchema = mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      minLength: 4,
+      maxLength: 30,
+    },
+    lastName: {
+      type: String,
+      minLength: 5,
+      maxLength: 20,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Please Enter Valid Email");
+        }
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minLength: 6,
+    },
   },
-  lastName: {
-    type: String,
-    minLength: 5,
-    maxLength: 10,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 const User = mongoose.model("User", userSchema);
 
