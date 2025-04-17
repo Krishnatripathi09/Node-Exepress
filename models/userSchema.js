@@ -29,6 +29,14 @@ const userSchema = mongoose.Schema(
       required: true,
       minLength: 6,
     },
+    gender: {
+      type: String,
+      validate(value) {
+        if (!["male", "female", "others"].includes(value)) {
+          throw new Error("Please Enter Valid Gender");
+        }
+      },
+    },
   },
   { timestamps: true }
 );
