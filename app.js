@@ -2,6 +2,7 @@ const express = require("express");
 const connectDB = require("./config/database.js");
 const { User } = require("./models/userSchema.js");
 const { validateSignUpData } = require("./utils/validation.js");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 3000;
@@ -35,7 +36,10 @@ app.post("/signin", async (req, res) => {
 
   const validPassword = await bcrypt.compare(password, user.password);
 
+  const id = user.id;
   if (validPassword) {
+    const token = await jwt.sign({ id }, "MySecretKey619916");
+    res.cookie("token", token);
     return res.status(200).send("Login Successfull");
   } else {
     res.status(400).send("Please Enter Valid Credentials");
@@ -43,6 +47,8 @@ app.post("/signin", async (req, res) => {
 });
 
 app.get("/user", async (req, res) => {
+
+
   const user = await User.find({}).select("firstName lastName email");
 
   res.send("Users Found : " + user);
