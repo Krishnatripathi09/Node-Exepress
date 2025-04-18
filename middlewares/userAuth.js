@@ -1,14 +1,20 @@
-//const express = require("express");
-const userAuth = (req, res, next) => {
-  const token = "XYZ";
+const jwt = require("jsonwebtoken");
+const { User } = require("../models/userSchema");
+const userAuth = async (req, res, next) => {
+  const { token } = req.cookies;
 
-  const isUserAuthorized = token === "ABC";
+  const decodedMSG = await jwt.verify(token, "MySecretKey619916");
 
-  if (!isUserAuthorized) {
-    res.status(401).send("user Unauthorized! Please Log-In Again");
-  } else {
-    next();
+  const { id } = decodedMSG;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    res.status(404).send("User Not Found");
   }
+
+  req.user = user;
+  next();
 };
 
 module.exports = {

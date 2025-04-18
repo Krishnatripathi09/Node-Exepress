@@ -4,9 +4,13 @@ const { User } = require("./models/userSchema.js");
 const { validateSignUpData } = require("./utils/validation.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const cookieparser = require("cookie-parser");
+const { userAuth } = require("./middlewares/userAuth.js");
+
 const app = express();
 const PORT = 3000;
 
+app.use(cookieparser());
 app.use(express.json());
 app.post("/user", async (req, res) => {
   validateSignUpData(req, res);
@@ -38,18 +42,25 @@ app.post("/signin", async (req, res) => {
 
   const id = user.id;
   if (validPassword) {
-    const token = await jwt.sign({ id }, "MySecretKey619916");
-    res.cookie("token", token);
+    const token = await jwt.sign({ id }, "MySecretKey619916", {
+      expiresIn: "1d",
+    });
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 9 * 3600000),
+    });
     return res.status(200).send("Login Successfull");
   } else {
     res.status(400).send("Please Enter Valid Credentials");
   }
 });
 
-app.get("/user", async (req, res) => {
+app.get("/user", userAuth, async (req, res) => {
+  const loggedInUser = req.user;
 
-
-  const user = await User.find({}).select("firstName lastName email");
+  const user = await User.findById(loggedInUser.id).select(
+    "firstName lastName email"
+  );
 
   res.send("Users Found : " + user);
 });
