@@ -42,9 +42,8 @@ app.post("/signin", async (req, res) => {
 
   const id = user.id;
   if (validPassword) {
-    const token = await jwt.sign({ id }, "MySecretKey619916", {
-      expiresIn: "1d",
-    });
+    const token = await user.getJWT();
+
     res.cookie("token", token, {
       httpOnly: true,
       expires: new Date(Date.now() + 9 * 3600000),
