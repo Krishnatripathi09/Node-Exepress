@@ -6,63 +6,17 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cookieparser = require("cookie-parser");
 const { userAuth } = require("./middlewares/userAuth.js");
+const profileRouter = require("./routes/profile.js");
+const authRouter = require("./routes/auth.js");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cookieparser());
 app.use(express.json());
-app.post("/user", async (req, res) => {
-  validateSignUpData(req, res);
-  const { firstName, lastName, email, password } = req.body;
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User({
-    firstName,
-    lastName,
-    email,
-    password: passwordHash,
-  });
-
-  await user.save();
-
-  res.send("User Created Successfully");
-});
-
-app.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(401).send("Please Enter valid Email And Password");
-  }
-
-  const validPassword = await user.verifyPWD(password);
-
-  const id = user.id;
-  if (validPassword) {
-    const token = await user.getJWT();
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 9 * 3600000),
-    });
-    return res.status(200).send("Login Successfull");
-  } else {
-    res.status(400).send("Please Enter Valid Credentials");
-  }
-});
-
-app.get("/user", userAuth, async (req, res) => {
-  const loggedInUser = req.user;
-
-  const user = await User.findById(loggedInUser.id).select(
-    "firstName lastName email"
-  );
-
-  res.send("Users Found : " + user);
-});
+app.use("/", profileRouter);
+app.use("/", authRouter);
 
 connectDB()
   .then(() => {
