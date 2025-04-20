@@ -35,10 +35,10 @@ app.post("/signin", async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(401).send("Please Enter valid Email or Password");
+    return res.status(401).send("Please Enter valid Email And Password");
   }
 
-  const validPassword = await bcrypt.compare(password, user.password);
+  const validPassword = await user.verifyPWD(password);
 
   const id = user.id;
   if (validPassword) {
