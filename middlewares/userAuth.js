@@ -13,6 +13,13 @@ const userAuth = async (req, res, next) => {
     res.status(404).send("User Not Found");
   }
 
+  const tokenTime = new Date(decodedMSG.passwordUpdatedAt).getTime();
+  const currentTime = new Date(user.passwordUpdatedAt).getTime();
+
+  if (currentTime > tokenTime) {
+    res.status(401).send("Please Log-In Again After Updating Password");
+  }
+
   req.user = user;
   next();
 };

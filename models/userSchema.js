@@ -39,15 +39,23 @@ const userSchema = mongoose.Schema(
         }
       },
     },
+    passwordUpdatedAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   { timestamps: true }
 );
 
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const signJWT = await jwt.sign({ id: user.id }, "MySecretKey619916", {
-    expiresIn: "1h",
-  });
+  const signJWT = await jwt.sign(
+    { id: user.id, passwordUpdatedAt: user.passwordUpdatedAt },
+    "MySecretKey619916",
+    {
+      expiresIn: "1h",
+    }
+  );
 
   return signJWT;
 };

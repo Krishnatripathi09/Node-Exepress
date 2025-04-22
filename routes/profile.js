@@ -3,6 +3,7 @@ const { userAuth } = require("../middlewares/userAuth");
 const { validateEditProfileData } = require("../utils/validation.js");
 const { User } = require("../models/userSchema.js");
 const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const profileRouter = express.Router();
 
@@ -33,22 +34,39 @@ profileRouter.patch("/editprofile", userAuth, async (req, res) => {
 });
 
 profileRouter.patch("/updatepassword", userAuth, async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  try {
+    const { oldPassword, newPassword } = req.body;
 
-  const loggedInUser = req.user;
+    if (!oldPassword || !newPassword) {
+      res.status(400).send("Both old and new Passwords are required");
+    }
 
-  const isValidPassword = await bcrypt.compare(
-    oldPassword,
-    loggedInUser.password
-  );
+    if (oldPassword === newPassword) {
+      res.status(400).send("Old and NewPasswords cannot be same");
+    }
 
-  if (isValidPassword) {
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-    loggedInUser.password = passwordHash;
-    await loggedInUser.save();
-    res.status(200).send("Password Updated SuccessFully");
-  } else {
-    res.status(400).send("Please Enter Valid Old Password");
+    if (!validator.isStrongPassword(newPassword)) {
+      res.status(400).send("Please Enter Strong new Password");
+    }
+
+    const loggedInUser = req.user;
+
+    const isValidPassword = await bcrypt.compare(
+      oldPassword,
+      loggedInUser.password
+    );
+
+    if (isValidPassword) {
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+      loggedInUser.password = passwordHash;
+      loggedInUser.passwordUpdatedAt = new Date();
+      await loggedInUser.save();
+      res.status(200).send("Password Updated SuccessFully");
+    } else {
+      res.status(400).send("Please Enter Valid Old Password");
+    }
+  } catch (err) {
+    console.log(err);
   }
 });
 
