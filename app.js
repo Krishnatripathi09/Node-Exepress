@@ -8,6 +8,7 @@ const cookieparser = require("cookie-parser");
 const { userAuth } = require("./middlewares/userAuth.js");
 const profileRouter = require("./routes/profile.js");
 const authRouter = require("./routes/auth.js");
+const { rateLimit } = require("express-rate-limit");
 
 const app = express();
 const PORT = 3000;
@@ -15,8 +16,15 @@ const PORT = 3000;
 app.use(cookieparser());
 app.use(express.json());
 
-app.use("/", profileRouter);
-app.use("/", authRouter);
+const apiLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // Time duration of 15 mins
+  limit: 10, //limit for API
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
+
+app.use("/", apiLimit, profileRouter);
+app.use("/", apiLimit, authRouter);
 
 connectDB()
   .then(() => {
