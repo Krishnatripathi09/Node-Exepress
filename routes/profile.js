@@ -70,4 +70,12 @@ profileRouter.patch("/updatepassword", userAuth, async (req, res) => {
   }
 });
 
+profileRouter.delete("/user/delete", userAuth, async (req, res) => {
+  const loggedInUser = req.user;
+
+  const deletedUser = await User.deleteOne({ _id: loggedInUser.id });
+
+  res.status(200).send("User Profile Deleted SucessFully", deletedUser);
+});
+
 module.exports = profileRouter;
