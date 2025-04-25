@@ -1,27 +1,35 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/userSchema");
 const userAuth = async (req, res, next) => {
-  const { token } = req.cookies;
+  try {
+    const { token } = req.cookies;
 
-  const decodedMSG = await jwt.verify(token, "MySecretKey619916");
+    if (!token) {
+      return res.status(401).send("User Unauthorized! Please Log-In Again");
+    }
 
-  const { id } = decodedMSG;
+    const decodedMSG = await jwt.verify(token, "MySecretKey619916");
 
-  const user = await User.findById(id);
+    const { id } = decodedMSG;
 
-  if (!user) {
-    res.status(404).send("User Not Found");
+    const user = await User.findById(id);
+
+    if (!user) {
+      res.status(404).send("User Not Found");
+    }
+
+    const tokenTime = new Date(decodedMSG.passwordUpdatedAt).getTime();
+    const currentTime = new Date(user.passwordUpdatedAt).getTime();
+
+    if (currentTime > tokenTime) {
+      res.status(401).send("Please Log-In Again After Updating Password");
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.log(err);
   }
-
-  const tokenTime = new Date(decodedMSG.passwordUpdatedAt).getTime();
-  const currentTime = new Date(user.passwordUpdatedAt).getTime();
-
-  if (currentTime > tokenTime) {
-    res.status(401).send("Please Log-In Again After Updating Password");
-  }
-
-  req.user = user;
-  next();
 };
 
 module.exports = {

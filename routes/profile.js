@@ -13,9 +13,16 @@ profileRouter.get("/user", userAuth, async (req, res) => {
   const user = await User.findById(loggedInUser.id).select(
     "firstName lastName email"
   );
-
   res.send("Users Found : " + user);
 });
+
+profileRouter.get("/alluser", userAuth, async (req, res) => {
+  const loggedInUser = req.user;
+
+  const users = await User.find({}).select("firstName lastName email");
+  res.status(200).send("Found Users =>" + users);
+});
+
 profileRouter.patch("/editprofile", userAuth, async (req, res) => {
   try {
     if (!validateEditProfileData(req)) {
