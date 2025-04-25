@@ -19,7 +19,15 @@ profileRouter.get("/user", userAuth, async (req, res) => {
 profileRouter.get("/alluser", userAuth, async (req, res) => {
   const loggedInUser = req.user;
 
-  const users = await User.find({}).select("firstName lastName email");
+  const page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 3;
+  limit = limit > 10 ? 5 : limit;
+  const skip = (page - 1) * limit;
+
+  const users = await User.find({})
+    .select("firstName lastName email")
+    .skip()
+    .limit(limit);
   res.status(200).send("Found Users =>" + users);
 });
 
