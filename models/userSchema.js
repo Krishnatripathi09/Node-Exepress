@@ -47,6 +47,8 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ firstName, email });
+
 userSchema.methods.getJWT = async function () {
   const user = this;
   const signJWT = await jwt.sign(
