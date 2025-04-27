@@ -17,7 +17,10 @@ const upload = multer({ storage: storage });
 
 fileUpload.post("/file", upload.single("file"), (req, res) => {
   try {
-    res.send("File Uploaded SuccessFully");
+    if (!req.file) {
+      return res.status(400).send("Please Provide the File to be uploaded");
+    }
+    res.status(200).send("File Uploaded SuccessFully");
   } catch (err) {
     console.log(err);
   }
