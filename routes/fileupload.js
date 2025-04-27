@@ -23,7 +23,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage: storage, fileFilter });
 
-fileUpload.post("/file", upload.single("file"), (req, res) => {
+fileUpload.post("/file", upload.array("file"), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send("Please Provide the File to be uploaded");
