@@ -8,6 +8,7 @@ const cookieparser = require("cookie-parser");
 const { userAuth } = require("./middlewares/userAuth.js");
 const profileRouter = require("./routes/profile.js");
 const authRouter = require("./routes/auth.js");
+const { fileUpload } = require("./routes/fileupload.js");
 const { rateLimit } = require("express-rate-limit");
 
 const app = express();
@@ -25,6 +26,7 @@ const apiLimit = rateLimit({
 
 app.use("/", apiLimit, profileRouter);
 app.use("/", apiLimit, authRouter);
+app.use("/", apiLimit, fileUpload);
 
 connectDB()
   .then(() => {
