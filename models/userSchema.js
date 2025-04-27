@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
 const userSchema = mongoose.Schema(
   {
     firstName: {
@@ -47,7 +48,7 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ firstName, email });
+userSchema.index({ firstName: 1, email: 1 });
 
 userSchema.methods.getJWT = async function () {
   const user = this;
@@ -74,6 +75,14 @@ userSchema.methods.verifyPWD = async function (passwordInputByUser) {
 
   return isValidPassword;
 };
+
+userSchema.pre("save", function (next) {
+  const user = this;
+
+  if (user.isModified("password")) {
+    user.passwordUpdatedAt = Date.now();
+  }
+});
 
 const User = mongoose.model("User", userSchema);
 
